@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 
 import { Header } from '../components/Header';
 import { Task, TasksList } from '../components/TasksList';
@@ -9,7 +9,12 @@ export function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
 
   function handleAddTask(newTaskTitle: string) {
-    setTasks([...tasks, { id: new Date().getTime(), title: newTaskTitle, done: false }])
+
+    const duplicateTask = tasks.find(task => task.title === newTaskTitle)
+
+    Boolean(duplicateTask) ? Alert.alert('Você não pode cadastrar duas tarefas com o mesmo nome')
+      :
+      setTasks([...tasks, { id: new Date().getTime(), title: newTaskTitle, done: false }])
   }
 
   function handleToggleTaskDone(id: number) {
@@ -19,7 +24,23 @@ export function Home() {
   }
 
   function handleRemoveTask(id: number) {
-    setTasks(tasks.filter(task => task.id !== id))
+    Alert.alert(
+      "Alerta",
+      "A tarefa será apagada definitivamente",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        { text: "OK", onPress: () => setTasks(tasks.filter(task => task.id !== id)) }
+      ]
+    );
+  }
+
+  function handleEditTask(id: number, newTaskTitle: string) {
+    setTasks(
+      tasks.map(task => task.id === id ? { ...task, title: newTaskTitle } : task)
+    )
   }
 
   return (
@@ -32,6 +53,7 @@ export function Home() {
         tasks={tasks}
         toggleTaskDone={handleToggleTaskDone}
         removeTask={handleRemoveTask}
+        editTask={handleEditTask}
       />
     </View>
   )
